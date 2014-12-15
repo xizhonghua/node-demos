@@ -7,6 +7,7 @@ var path = require('path');
 //  /albums/shanghai2012.json
 //  /content/*  static files
 //  /template/* template files
+//  /page/xxx dynamic web page
 
 function handle_request(req, res){
     console.log('Incoming request: (' + req.method + ')' + req.url);
@@ -20,16 +21,24 @@ function handle_request(req, res){
 
 
     if(/\/content\//.test(core_url)) {
-        server_static_file(req, res);
-    } else {
+        server_static_file('content/', core_url.substr(9), req, res);
+    } else if(/\/template\//.test(core_url)) {
+        server_static_file('template/', core_url.substr(10), req, res);
+    } else if(/\/page\//.test(core_url)) {
+        server_page(req, res);
+    } else if(/\/albums\/.*json/.test(core_url)) {
+        handle_get_album(req, res);
+    } else if(/\/albums\/.*jpg/.test(core_url)) {
+        server_static_file('albums/', core_url.substr(8), req, res);
+    }else {
         res.writeHead(404, { 'Content-Type' : 'application/json'});
         res.end(JSON.stringify({error:'unknown_resource'}) + '\n');
     }    
 }
 
 // server static file using pipe
-function server_static_file(req, res){
-    var filename = req.parsed_url.pathname.substr(1);
+function server_static_file(folder, file, req, res){
+    var filename = folder + file;
     var content_type = get_content_type(filename);
     var rs = fs.createReadStream(filename);
 
@@ -41,7 +50,21 @@ function server_static_file(req, res){
             res.end(JSON.stringify({error:'unknown_resource'}));
         });
 
+    res.writeHead(200, {'Content-Type': content_type});
     rs.pipe(res);
+}
+
+function server_page(req, res) {
+var page_name = req.parsed_url.pathname.substr(6);
+    fs.readFile('basic.html', 'utf8', function(err, contents){
+        if(err) {
+            res.writeHead(503, {'Content-Type' : 'text/html'});
+            res.end('bad request...');
+        }
+
+        res.writeHead(200, {'Content-Type' :'text/html'});
+        res.end(contents.replace('{{PAGE_NAME}}', page_name));
+    })
 }
 
 function get_content_type(filename) {

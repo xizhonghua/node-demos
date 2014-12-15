@@ -1,0 +1,6 @@
+<div id="image_list">
+<p> Number of photos : {{ album.photos.length }}</p>
+{{#album.photos}}
+<img src='/albums/{{album.album_name}}/{{.}}' />
+{{/album.photos}}
+</div>

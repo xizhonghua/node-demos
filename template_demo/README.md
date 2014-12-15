@@ -1,6 +1,13 @@
 ##Template Demo
 
-###Results
+###Overview
+node web server with template support.
+
+#### Features
+* static file serving (images/js/css/html)
+* album listing (file system only, no db involved).
+
+###Demo
 ![](docs/results.png)
 
 ###Basic.html
@@ -52,4 +59,14 @@ $(function(){
         });
     }();
 });
-```
+```###Mustache Template
+example: home.html
+
+```html
+<div id="image_list">
+<p> Number of photos : {{ album.photos.length }}</p>
+{{#album.photos}}
+<img src='/albums/{{album.album_name}}/{{.}}' />
+{{/album.photos}}
+</div>
+```

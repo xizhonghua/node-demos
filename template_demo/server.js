@@ -63,7 +63,7 @@ var page_name = req.parsed_url.pathname.substr(6);
         }
 
         res.writeHead(200, {'Content-Type' :'text/html'});
-        res.end(contents.replace('{{PAGE_NAME}}', page_name));
+        res.end(contents.replace(/{{PAGE_NAME}}/g, page_name));
     })
 }
 
